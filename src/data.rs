@@ -3,6 +3,7 @@ use crate::board::Board;
 use crate::board::SIZE;
 use crate::board::new_board;
 use crate::board::Cell;
+use std::fs;
 pub const MIN_SHIP: usize = 2;
 pub const MAX_SHIP: usize = 5;
 
@@ -187,9 +188,25 @@ pub fn parse_board(text: &str) -> Option<Board> {
 // Task 4.
 // Read the file at path and parse it with parse_board. On a read error, or if
 // parse_board returns None, print a message to stderr and return None.
-pub fn load_board(_path: &str) -> Option<Board> {
-    todo!("Task 4: load_board")
-}
+pub fn load_board(path: &str) -> Option<Board> {
+    
+    let contents = match fs::read_to_string(path) {
+        Ok(text) => text,
+        Err(e) => {
+            eprintln!("{}", e);
+            return None;
+        }
+    };
+
+     
+     match parse_board(&contents) {
+         Some(board) => Some(board),
+         None => {
+             eprintln!("{} is not a vaild board file", path);
+             None
+          }
+      }
+  }
 
 // Task 6.
 // Append "name,score" as one line to path, creating the file if needed.
