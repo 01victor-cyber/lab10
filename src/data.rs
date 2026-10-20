@@ -26,7 +26,7 @@ pub struct ScoreRecord {
 // Returns None for any line that is not "name,number".
 pub fn parse_score(line: &str) -> Option<ScoreRecord> {
     let parts: Vec<&str> = line.trim().split(',').collect();
-    if parts.len() != 2 {
+    if parts.len() < 2 {
         return None;
     }
     let name = parts[0].trim();
@@ -67,9 +67,6 @@ pub fn sort_scores_desc(records: &mut Vec<ScoreRecord>) {
 // and a length that parses as a number from MIN_SHIP to MAX_SHIP.
 // Model it on parse_score above.
 pub fn parse_ship_line(line: &str) -> Option<ShipSpec> {
-    if line.matches(',').count() != 1 {
-        return None;
-}
     let mut parts = line.split(',');
     let name_part = parts.next()?.trim();
     let len_part = parts.next()?.trim();
@@ -79,7 +76,7 @@ pub fn parse_ship_line(line: &str) -> Option<ShipSpec> {
     }
     
     let length = len_part.parse::<u32>().ok()?;
-    if length < MIN_SHIP.try_into().unwrap() && length > MAX_SHIP.try_into().unwrap() {
+    if length < MIN_SHIP.try_into().unwrap() || length > MAX_SHIP.try_into().unwrap() {
         return None;
     }
     
