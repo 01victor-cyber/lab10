@@ -1,6 +1,8 @@
 use battleship::board::{self, Board, Shot};
 use battleship::data::{self, ShipSpec};
 use battleship::ui;
+use std::io;
+use std::io::Write;
 use rand::SeedableRng;
 use rand::rngs::StdRng;
 const PRACTICE_PATH: &str = "data/board/practice.txt";
@@ -52,6 +54,7 @@ pub fn show_top_scores(n: usize) {
         }
     }
 }
+
     // TODO (Task 9): load the scores; print "TOP n"; if there are none print
     // "  no scores yet"; otherwise sort with data::sort_scores_desc and print up
     // to n lines like
@@ -67,14 +70,36 @@ fn play_game(fleet: &[ShipSpec]) {
         println!("The fleet does not fit on the board. Check {FLEET_PATH}.");
         return;
     }
+
     if let Some(shots) = play_round(&mut board) {
-        let score = board::score_for(shots);
-        println!("All ships sunk in {shots} shots. Score: {score}");
-        // TODO (Task 10): if score > 0, ask for a name with ui::prompt, build a
+        println!("You cleared the board in {} shots!", shots);
+        print!("Enter your name for the high score list: ");
+        io::stdout().flush().unwrap();
+   
+        let mut name = String::new();
+        io::stdin().read_line(&mut name).unwrap();
+        let name = name.trim();
+
+        if !name.is_empty() {
+            let record = data::ScoreRecord {
+                name: name.to_string(),
+                score: shots,
+            
+            };
+            if data::append_score(SCORES_PATH, &record) {
+                println!("Score saved!");
+            } else {
+                println!("Failed to save score.");
+            }
+        } else {
+            println!("No name entered. Score not saved.");
+        }
+     }
+} 
+     // TODO (Task 10): if score > 0, ask for a name with ui::prompt, build a
         // ScoreRecord (add it to the `use` line), and save it with
         // data::append_score. Print "Score saved." only when it returns true.
-    }
-}
+    
 
 // An unscored game on the fixed layout in the practice file.
 fn practice_game() {
@@ -89,6 +114,7 @@ fn practice_game() {
       }
    }
 }
+
     // TODO (Task 8): load the board with data::load_board(PRACTICE_PATH). On
     // Some(mut board), play it with play_round and print
     // "Practice board cleared in N shots." when play_round returns Some(N).
