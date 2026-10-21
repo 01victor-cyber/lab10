@@ -215,6 +215,11 @@ pub fn load_board(path: &str) -> Option<Board> {
 pub fn append_score(path: &str, record: &ScoreRecord) -> bool {
     let sanitized_name = record.name.replace(','," ");
     
+    if let Some(parent) = std::path::Path::new(path).parent() {
+    if !parent.as_os_str().is_empty() {
+        let _ = std::fs::create_dir_all(parent);
+    }
+ }
     
     let mut file = match OpenOptions::new().create(true).append(true).open(path) {
         Ok(f) => f,
